@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Расчет частоты света и длины волны</title>
+<style>
+  .square {
+  }
+  
+  /* Стили для всплывающего окна */
+  .popup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  }
+</style>
+</head>
+<body>
+<h2>Введите частоту звука (в Гц):</h2>
+<input type="number" id="frequencyInput" min="20" max="20000" step="1" value="440">
+<button onclick="calculate()">Рассчитать</button>
+
+<button onclick="togglePopup()">Информация</button>
+
+<div id="popup" class="popup">
+  <h2>Звук и свет</h2>
+  <p>Октава - увеличение в 2 раза исходной частоты. Повышение октавы - поэтапное умножение на 2
+  </p>
+  <button onclick="togglePopup()">Закрыть</button>
+</div>
+
+
+<table id="table">
+    <thead>
+      <tr>
+        <th id="colorSquaret" class="square">Звуковая частота и её октавы, при пересчёте в электромагнитный диапазон виидимого спектра 380-780нм) </th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+    </tbody>
+  </table>
+
+<script>
+// Функция для открытия и закрытия всплывающего окна
+ function togglePopup() {
+   var popup = document.getElementById("popup");
+   if (popup.style.display === "none") {
+     popup.style.display = "block";
+   } else {
+     popup.style.display = "none";
+   }
+ }
+ 
+function calculate() {
+  var frequency = document.getElementById("frequencyInput").value;
+  var context = new AudioContext();
+  var oscillator = context.createOscillator();
+  oscillator.type = 'sine'; // тип звука - синусоида
+  oscillator.frequency.setValueAtTime(frequency, context.currentTime); // установка частоты
+  oscillator.connect(context.destination);
+  oscillator.start();
+  setTimeout(function(){
+  	oscillator.stop();
+  	context.close();
+  }, 2000); // остановка через 2 секунды
+  // Расчет октавы звука от несущей частоты планеты (n)
+  let k=1 //октава звука
+  document.getElementById("tableBody").innerHTML = ""
+  let frequency_sound = frequency
+  while (frequency_sound >=1 & frequency_sound <=20000) {
+  		//расчёт параметров света: частота и длина волны)
+  		let i = 1 //октава света
+  		let Fsvo = 1;
+  		let Lsvo = 781;
+  		while (Lsvo >= 380 & Lsvo > 780) {
+  			Fsvo = frequency_sound * Math.pow(2, i);
+  			Lsvo = 299792458/(Fsvo * Math.pow(10, -9));
+  			//console.log(Fsvo, "Гц, ", Lsvo.toFixed(2),"нм, ", i);
+  			i++
+  		}
+  		changeColor(Lsvo);
+  		val = `звук ${frequency_sound}Гц, <br> октава ${i - 1}, <br> частота света ${Fsvo.toFixed(0)}Гц, <br> длина волны света ${Lsvo.toFixed(2)}нм <br><hr>`;
+  		addRow(val);
+  		console.log(k, ". звук - ", frequency_sound, "Гц, свет - ", ", ", Fsvo.toFixed(2), "Гц, ", Lsvo.toFixed(2),"нм, ", i - 1, "октава");
+  		frequency_sound = frequency * Math.pow(2, k);
+  		k++;
+  	}
+	
+	function addRow(value) {
+	
+	var tableBody = document.getElementById("tableBody");
+	var row = tableBody.insertRow();
+	var cell = row.insertCell();
+	cell.innerHTML = value;
+	}
+
+  function changeColor(w) {
+  //расчёт длины волны
+  let red, green, blue;
+  
+  if (w < 380 || w > 781) {
+  [red, gren, blue] = [0, 0, 0];
+  } else if (w < 440) {
+  [red, green, blue] = [(440 - w) / 60, 0, 1];
+  } else if (w < 490) {
+  [red, green, blue] = [0, (w - 440) / 50, 1];
+  } else if (w < 510) {
+  [red, green. blue] = [0, 1, (510 - w) / 20];
+  } else if (w < 580) {
+  [red, green, blue] = [(w - 510) / 70, 1, 0];
+  } else if (w < 645) {
+  [red, green, blue] = [1, (645 - w) / 65, 0];
+  } else {
+  [red, green, blue] = [1, 0, 0];
+  }
+  
+  let factor;
+  if (w < 380 || w > 781) {
+  factor = 0;
+  } else if (w < 420) {
+  factor = 0.3 + 0.7 * (w - 380) / 40;
+  } else if (w < 701) {
+  factor = 1.0;
+  } else {
+  factor = 0.3 + 0.7 * (780 - w) / 80;
+  }
+  
+  const gamma = 0.8;
+  
+  const R = (red > 0 ? 255 * Math.pow(red * factor, gamma) : 0);
+  const G = (green > 0 ? 255 * Math.pow(green * factor, gamma) : 0);
+  const B = (blue > 0 ? 255 * Math.pow(blue * factor, gamma) : 0);
+  
+  var colorValue = `rgb(${R}, ${G}, ${B})`;
+  console.log(colorValue);
+  var square = document.getElementById("colorSquaret");
+  square.style.backgroundColor = colorValue;
+  }
+}
+</script>
+</body>
+</html>
