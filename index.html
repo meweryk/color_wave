@@ -140,9 +140,10 @@ function calculate() {
   const G = (green > 0 ? 255 * Math.pow(green * factor, gamma) : 0);
   const B = (blue > 0 ? 255 * Math.pow(blue * factor, gamma) : 0);
   
-  var colorValue = `rgb(${R}, ${G}, ${B})`;
+  var colorValue = `rgb(${Math.round(R)}, ${Math.round(G)}, ${Math.round(B)})`;
   console.log(colorValue);
   var square = document.getElementById("colorSquaret");
+  document.getElementById("colorSquaret").innerHTML = square + " , " + colorValue;
   square.style.backgroundColor = colorValue;
   }
 }
