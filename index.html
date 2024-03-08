@@ -42,7 +42,7 @@
 <table id="table">
     <thead>
       <tr>
-        <th id="colorSquaret" class="square">Звуковая частота и её октавы при пересчёте в электромагнитный диапазон видимого спектра 380-780нм </th>
+        <th id="colorSquaret" class="square"></th>
       </tr>
     </thead>
     <tbody id="tableBody">
@@ -143,7 +143,7 @@ function calculate() {
   var colorValue = `rgb(${Math.round(R)}, ${Math.round(G)}, ${Math.round(B)})`;
   console.log(colorValue);
   var square = document.getElementById("colorSquaret");
-  document.getElementById("colorSquaret").innerHTML = square + " , " + colorValue;
+  square.innerText = "Звуковая частота и её октавы при пересчёте в электромагнитный диапазон видимого спектра 380-780нм  , " + colorValue;
   square.style.backgroundColor = colorValue;
   }
 }
